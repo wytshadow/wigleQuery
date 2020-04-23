@@ -36,11 +36,13 @@ def userStats():
 def searchBSSID():
     payload = {'netid': BSSID, 'api_key': urlsafe_b64encode(creds_bytes)}
     results = requests.get(url='https://api.wigle.net/api/v2/network/search', params=payload, auth=HTTPBasicAuth(wigle_username, wigle_password)).json()
+    print("Query Success: %s \n" % results['success'])
+
+    if results['success'] == False:
+        print("Fail Reason: " + results['message']+ "\n")
+        return
 
     print("Total Results: %s" % results['totalResults'])
-    if results['totalResults'] == 0:
-      print("Sorry, No results for your query. Try a different BSSID\n")
-      return
 
     lat = 0.0
     lon = 0.0
@@ -85,6 +87,13 @@ def searchBSSID():
 def searchESSID():
     payload = {'ssid': ESSID, 'api_key': urlsafe_b64encode(creds_bytes)}
     results = requests.get(url='https://api.wigle.net/api/v2/network/search', params=payload, auth=HTTPBasicAuth(wigle_username, wigle_password)).json()
+    print("Query Success: %s \n" % results['success'])
+
+    if results['success'] == False:
+        print("Fail Reason: " + results['message']+ "\n")
+        return
+
+    print("Total Results: %s" % results['totalResults'])
 
     lat = 39.7392
     lon = -104.9903
@@ -93,8 +102,6 @@ def searchESSID():
     #setup map in AoI
     gmap = gmplot.GoogleMapPlotter(lat, lon, 5)
     gmap.apikey = googleMapAPI
-
-    print("Total Results: %s" % results['totalResults'])
 
     print("Creating markers...")
     totalCount = 0
