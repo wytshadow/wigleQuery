@@ -32,8 +32,6 @@ optional arguments:
   -wT WigleAPIToken     Wigle API Token from wigle.net
   -g GoogleMapsAPI      Google Maps API key
 ```
-
-## Usage
 ### WiGLE API
 WiGLE API Name and Token are not your username and password. After creating an account on wigle.net, visit https://wigle.net/account to see your API Name and API Token.
 
@@ -43,6 +41,7 @@ WiGLE has a limit on how many API queries a user can make per day. It is easy to
 ### Google Maps API
 Follow the instructions at https://developers.google.com/maps/documentation/javascript/get-api-key to get a Maps JavaScript API key for use with this tool.
 
+## Usage
 ```
 python3 wigleQuery.py -wA AI***************18 -wT e6****************b8 -e "BobsWiFi" -g AI********************VKI    
 
