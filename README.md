@@ -34,6 +34,11 @@ optional arguments:
 ```
 
 ## Usage
+### WiGLE API
+WiGLE API Name and Token are not your username and password. After creating an account on wigle.net, visit https://wigle.net/account to see your API Name and API Token.
+
+### Google Maps API
+Follow the instructions at https://developers.google.com/maps/documentation/javascript/get-api-key to get a Maps JavaScript API key for use with this tool.
 
 ```
 python3 wigleQuery.py -wA AI***************18 -wT e6****************b8 -e "BobsWiFi" -g AI********************VKI    
