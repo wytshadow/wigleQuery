@@ -39,10 +39,14 @@ optional arguments:
 python3 wigleQuery.py -wA AI***************18 -wT e6****************b8 -e "BobsWiFi" -g AI********************VKI    
 
 User: wytshadow 
-Login Success: true 
+Rank: 1629 
+Discovered Wifi+GPS: 60037 
+Last Upload: 20200408-02113 
 
-Initializing map...
+Query Success: True 
+
 Total Results: 294
+Initializing map...
 Creating markers...
 Plotting results 0 - 100...
 Plotting results 100 - 200...
