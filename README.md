@@ -37,6 +37,9 @@ optional arguments:
 ### WiGLE API
 WiGLE API Name and Token are not your username and password. After creating an account on wigle.net, visit https://wigle.net/account to see your API Name and API Token.
 
+WiGLE has a limit on how many API queries a user can make per day. It is easy to exceed that daily limit using this tool. 
+
+
 ### Google Maps API
 Follow the instructions at https://developers.google.com/maps/documentation/javascript/get-api-key to get a Maps JavaScript API key for use with this tool.
 
