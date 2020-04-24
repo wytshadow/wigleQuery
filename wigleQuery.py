@@ -28,10 +28,12 @@ creds_bytes = creds.encode('ascii')
 
 def userStats():
     payload = {'api_key': urlsafe_b64encode(creds_bytes)}
-    results = requests.get(url='https://api.wigle.net/api/v2/profile/user', params=payload, auth=HTTPBasicAuth(wigle_username, wigle_password)).json()
+    results = requests.get(url='https://api.wigle.net/api/v2/stats/user', params=payload, auth=HTTPBasicAuth(wigle_username, wigle_password)).json()
 
-    print("\nUser: %s " % results['userid'])
-    print("Login Success: %s \n" % results['success'])
+    print("\nUser: %s " % results['statistics']['userName'])
+    print("Rank: %s " % results['statistics']['rank'])
+    print("Discovered Wifi+GPS: %s " % results['statistics']['discoveredWiFiGPS'])
+    print("Last Upload: %s \n" % results['statistics']['last'])
 
 def searchBSSID():
     payload = {'netid': BSSID, 'api_key': urlsafe_b64encode(creds_bytes)}
@@ -76,7 +78,7 @@ def searchBSSID():
         data += result['netid'] + ","
         data += result['encryption'] + ","
         data += str(result['channel'])
-        print(data)
+        #print(data)
         gmap.marker(y[u'latitude'], y[u'longitude'], color='#FF0000', title=data)
         totalCount += 1
 
