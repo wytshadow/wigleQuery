@@ -66,3 +66,7 @@ Creating wiglemap.html...
 Open wiglemap.html in a web browser.
 
 ![](https://github.com/wytshadow/wigleQuery/blob/master/wigleExample.png)
+
+Hover over a marker on the map to see information about a wireless access point.
+
+![](https://github.com/wytshadow/wigleQuery/blob/master/data.png)
