@@ -21,10 +21,23 @@ wigle_username = args.wigleAPI
 wigle_password = args.wigleToken
 BSSID = args.BSSID
 ESSID = args.ESSID
+ESSIDs = args.ESSIDs
+BSSIDs = args.BSSIDs
 googleMapAPI = args.googleAPI
 
 creds = wigle_username + wigle_password
 creds_bytes = creds.encode('ascii')
+
+clrs = ["red", "yellow", "blue", "orange", "purple", "green", "black", "white", "pink", "brown", "lightgreen", "lightblue"]
+
+#setup map in AoI
+lat = 39.7392
+lon = -104.9903
+gmap = gmplot.GoogleMapPlotter(lat, lon, 5)
+gmap.apikey = googleMapAPI
+
+lat_list = [] 
+lon_list = [] 
 
 def userStats():
     payload = {'api_key': urlsafe_b64encode(creds_bytes)}
@@ -35,7 +48,7 @@ def userStats():
     print("Discovered Wifi+GPS: %s " % results['statistics']['discoveredWiFiGPS'])
     print("Last Upload: %s \n" % results['statistics']['last'])
 
-def searchBSSID():
+def searchBSSID(BSSID, color):
     payload = {'netid': BSSID, 'api_key': urlsafe_b64encode(creds_bytes)}
     results = requests.get(url='https://api.wigle.net/api/v2/network/search', params=payload, auth=HTTPBasicAuth(wigle_username, wigle_password)).json()
     print("Query Success: %s \n" % results['success'])
@@ -46,48 +59,44 @@ def searchBSSID():
 
     print("Total Results: %s" % results['totalResults'])
 
-    lat = 0.0
-    lon = 0.0
-
     for result in results['results']:
         lat = float(result['trilat'])
         lon = float(result['trilong'])
     
-    print("Initializing map...")
-    #setup map in AoI
-    gmap = gmplot.GoogleMapPlotter(lat, lon, 6)
-    gmap.apikey = googleMapAPI
     data = ""
-    data += result['ssid'] + ","
+    if result['ssid'] == None:
+        data += "---HIDDEN---,"
+    else:
+        data += result['ssid'] + ","
     data += result['netid'] + ","
     data += result['encryption'] + ","
     data += str(result['channel'])
-    gmap.marker(lat, lon, color='#FF0000', title=data)
+    gmap.marker(lat, lon, color=color, title=data)
+    #totalCount = observations(BSSID, color)
+    #print("%d total observations!" % totalCount)
+    print("Populating wiglemap.html...\n")
+    gmap.draw("wiglemap.html")
 
+def observations(BSSID, color):
     #detail search aka every observation
+    payload = {'netid': BSSID, 'api_key': urlsafe_b64encode(creds_bytes)}
     results = requests.get(url='https://api.wigle.net/api/v2/network/detail', params=payload, auth=HTTPBasicAuth(wigle_username, wigle_password))
     json_data = json.loads(results.text)
 
-    print("Creating markers...")
+    print("Creating markers for every observation...")
     totalCount = 0
     for x in json_data[u'results']:
-      for y in x[u'locationData']:
-        #drop marker
-        data = ""
-        data += result['ssid'] + ","
-        data += result['netid'] + ","
-        data += result['encryption'] + ","
-        data += str(result['channel'])
-        #print(data)
-        gmap.marker(y[u'latitude'], y[u'longitude'], color='#FF0000', title=data)
-        totalCount += 1
+        for y in x[u'locationData']:
+            #drop marker
+            lat_list.append(y[u'latitude'])
+            lon_list.append(y[u'longitude'])
+            gmap.scatter(lat_list, lon_list, color, size=0.1, marker=False)
+            #gmap.polygon(lat_list, lon_list, color=color)
+            totalCount += 1
+    return totalCount
 
-    print("\nCreating wiglemap.html...")
-    print("Total markers set: %d\n" % totalCount)
-    gmap.draw("wiglemap.html")
-
-def searchESSID():
-    payload = {'ssid': ESSID, 'api_key': urlsafe_b64encode(creds_bytes)}
+def searchESSID(essid, color):
+    payload = {'ssid': essid, 'api_key': urlsafe_b64encode(creds_bytes)}
     results = requests.get(url='https://api.wigle.net/api/v2/network/search', params=payload, auth=HTTPBasicAuth(wigle_username, wigle_password)).json()
     print("Query Success: %s \n" % results['success'])
 
@@ -97,21 +106,20 @@ def searchESSID():
 
     print("Total Results: %s" % results['totalResults'])
 
-    lat = 39.7392
-    lon = -104.9903
+    markers(essid, results['totalResults'], color)
 
-    print("Initializing map...")
-    #setup map in AoI
-    gmap = gmplot.GoogleMapPlotter(lat, lon, 5)
-    gmap.apikey = googleMapAPI
+    print("%d total results discovered!" % results['totalResults'])
+    print("\nPopulating wiglemap.html...\n")
+    gmap.draw("wiglemap.html")
 
+def markers(essid, totalResults, color):
+    pageCount = 0
     print("Creating markers...")
     totalCount = 0
-    if results['totalResults'] > 10000:
+    if totalResults > 10000:
         print("Only plotting top 10,000 results")
-        pageCount = 0
         while pageCount < 9999:
-            payload = {'ssid': ESSID, 'api_key': urlsafe_b64encode(creds_bytes), 'first': pageCount}
+            payload = {'ssid': essid, 'api_key': urlsafe_b64encode(creds_bytes), 'first': pageCount}
             results = requests.get(url='https://api.wigle.net/api/v2/network/search', params=payload, auth=HTTPBasicAuth(wigle_username, wigle_password)).json()
             print("Plotting results %d - %d..." % (pageCount,pageCount+100))
             for result in results['results']:
@@ -124,20 +132,17 @@ def searchESSID():
                 data += result['netid'] + ","
                 data += result['encryption'] + ","
                 data += str(result['channel'])
-                gmap.marker(lat, lon, color='#FF0000', title=data)
+                gmap.marker(lat, lon, color=color, title=data)
             pageCount += 100
-        print("%d total results discovered!" % results['totalResults'])
         print("%d results plotted on map!" % totalCount)
-        print("\nCreating wiglemap.html...")
-        gmap.draw("wiglemap.html")
-    elif results['totalResults'] > 100 and results['totalResults'] < 10000:
+        return
+    elif totalResults > 100 and totalResults < 10000:
         #determine amount of loops to iterate through all pages
-        loops = int(results['totalResults'] / 100)
-        leftovers = results['totalResults'] - (loops * 100)
-        finalPageFirstNum = results['totalResults'] - leftovers
-        pageCount = 0
+        loops = int(totalResults / 100)
+        leftovers = totalResults - (loops * 100)
+        finalPageFirstNum = totalResults - leftovers
         while pageCount < (loops*100)-1:
-            payload = {'ssid': ESSID, 'api_key': urlsafe_b64encode(creds_bytes), 'first': pageCount}
+            payload = {'ssid': essid, 'api_key': urlsafe_b64encode(creds_bytes), 'first': pageCount}
             results = requests.get(url='https://api.wigle.net/api/v2/network/search', params=payload, auth=HTTPBasicAuth(wigle_username, wigle_password)).json()
             print("Plotting results %d - %d..." % (pageCount,pageCount+100))
             for result in results['results']:
@@ -150,11 +155,11 @@ def searchESSID():
                 data += result['netid'] + ","
                 data += result['encryption'] + ","
                 data += str(result['channel'])
-                gmap.marker(lat, lon, color='#FF0000', title=data)
+                gmap.marker(lat, lon, color=color, title=data)
             pageCount += 100
-        payload = {'ssid': ESSID, 'api_key': urlsafe_b64encode(creds_bytes), 'first': finalPageFirstNum}
+        payload = {'ssid': essid, 'api_key': urlsafe_b64encode(creds_bytes), 'first': finalPageFirstNum}
         results = requests.get(url='https://api.wigle.net/api/v2/network/search', params=payload, auth=HTTPBasicAuth(wigle_username, wigle_password)).json()
-        print("Last page %d - %d" % (finalPageFirstNum,results['totalResults']))
+        print("Last page %d - %d" % (finalPageFirstNum,totalResults))
         for result in results['results']:
             totalCount += 1
             lat = float(result['trilat'])
@@ -165,12 +170,12 @@ def searchESSID():
             data += result['netid'] + ","
             data += result['encryption'] + ","
             data += str(result['channel'])
-            gmap.marker(lat, lon, color='#FF0000', title=data)
-        print("%d total results discovered!" % results['totalResults'])
+            gmap.marker(lat, lon, color=color, title=data)
         print("%d results plotted on map!" % totalCount)
-        print("\nCreating wiglemap.html...")
-        gmap.draw("wiglemap.html")
-    elif results['totalResults'] <= 100 and results['totalResults'] > 0:
+        return
+    elif totalResults <= 100 and totalResults > 0:
+        payload = {'ssid': essid, 'api_key': urlsafe_b64encode(creds_bytes)}
+        results = requests.get(url='https://api.wigle.net/api/v2/network/search', params=payload, auth=HTTPBasicAuth(wigle_username, wigle_password)).json()
         for result in results['results']:
             totalCount += 1
             lat = float(result['trilat'])
@@ -182,20 +187,54 @@ def searchESSID():
             data += result['encryption'] + ","
             data += str(result['channel'])
             #print(data)
-            gmap.marker(lat, lon, color='#FF0000', title=data)
-        print("%d total results discovered!" % results['totalResults'])
+            gmap.marker(lat, lon, color=color, title=data)
         print("%d results plotted on map!" % totalCount)
-        print("\nCreating wiglemap.html...")
-        gmap.draw("wiglemap.html")
-    elif results['totalResults'] < 1:
+        return
+    elif totalResults < 1:
         print("Sorry, No results for your query. Try a different ESSID\n")
         return
+
+def searchBSSIDs(file):
+    f = open(file, "r")
+    lines = f.readlines()
+    count = 0
+    print("List of " + str(len(lines)) + " BSSIDs")
+    for x in lines:
+        colour = clrs[count]
+        print("\nQuerying for " + x)
+        searchBSSID(x.strip(), colour)
+        if count == 11:
+            count = 0
+        else:
+            count += 1
+    f.close()
+    return
+
+def searchESSIDs(file):
+    f = open(file, "r")
+    lines = f.readlines()
+    count = 0
+    print("List of " + str(len(lines)) + " ESSIDs")
+    for x in lines:
+        colour = clrs[count]
+        print("\nQuerying for " + x)
+        searchESSID(x.strip(), colour)
+        if count == 11:
+            count = 0
+        else:
+            count += 1 
+    f.close()
+    return
 
 if __name__ == "__main__":
     userStats()
     if args.BSSID:
-        searchBSSID()
+        searchBSSID(BSSID, clrs[0])
     elif args.ESSID:
-        searchESSID()
+        searchESSID(ESSID, clrs[0])
+    elif args.ESSIDs:
+        searchESSIDs(ESSIDs)
+    elif args.BSSIDs:
+        searchBSSIDs(BSSIDs)
     else:
         print(parser.print_help())
