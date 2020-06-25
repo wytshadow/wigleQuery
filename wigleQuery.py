@@ -12,6 +12,10 @@ parser.add_argument('-b', metavar='AA:BB:CC:DD:EE:FF', dest='BSSID', action='sto
 parser.add_argument('-B', metavar='ssids.txt', dest='BSSIDs', action='store', help='Search for list of BSSIDs\n', required=False)
 parser.add_argument('-e', metavar='Home-Wifi', dest='ESSID', action='store', help='Search for single ESSID\n', required=False)
 parser.add_argument('-E', metavar='wifiNetworks.txt', dest='ESSIDs', action='store', help='Search for list of ESSIDs\n', required=False)
+parser.add_argument('-lat', metavar='47.25264', dest='lat', action='store', help='Latitude\n', required=False)
+parser.add_argument('-long', metavar='-87.256243', dest='long', action='store', help='Longitude\n', required=False)
+parser.add_argument('-dist', metavar='0.010', dest='distance', action='store', help='Value must be between 0.001 and 0.2.\n', required=False)
+parser.add_argument('-range', metavar='y', dest='range', action='store', help='Show circle on map for Lat/Long query\n', required=False)
 parser.add_argument('-wA', metavar='WigleAPIName', dest='wigleAPI', action='store', help='Wigle API Name from wigle.net\n', required=True)
 parser.add_argument('-wT', metavar='WigleAPIToken', dest='wigleToken', action='store', help='Wigle API Token from wigle.net\n', required=True)
 parser.add_argument('-g',  metavar='GoogleMapsAPI', dest='googleAPI', action='store', help='Google Maps API key\n', required=True)
@@ -23,6 +27,10 @@ BSSID = args.BSSID
 ESSID = args.ESSID
 ESSIDs = args.ESSIDs
 BSSIDs = args.BSSIDs
+lati = float(args.lat)
+long = float(args.long)
+distance = float(args.distance)
+range = args.range
 googleMapAPI = args.googleAPI
 
 creds = wigle_username + wigle_password
@@ -38,6 +46,8 @@ gmap.apikey = googleMapAPI
 
 lat_list = [] 
 lon_list = [] 
+
+count = 0
 
 def userStats():
     payload = {'api_key': urlsafe_b64encode(creds_bytes)}
@@ -62,7 +72,14 @@ def searchBSSID(BSSID, color):
     for result in results['results']:
         lat = float(result['trilat'])
         lon = float(result['trilong'])
-    
+    try:
+        if not result['netid']:
+            #no results for bssid
+            return
+    except:
+        print("BSSID: " + BSSID + " not found!")
+        return
+
     data = ""
     if result['ssid'] == None:
         data += "---HIDDEN---,"
@@ -70,7 +87,9 @@ def searchBSSID(BSSID, color):
         data += result['ssid'] + ","
     data += result['netid'] + ","
     data += result['encryption'] + ","
-    data += str(result['channel'])
+    data += str(result['channel']) + ","
+    data += result['lastupdt']
+    print("FOUND: " + data)
     gmap.marker(lat, lon, color=color, title=data)
     #totalCount = observations(BSSID, color)
     #print("%d total observations!" % totalCount)
@@ -131,7 +150,9 @@ def markers(essid, totalResults, color):
                 data += result['ssid'] + ","
                 data += result['netid'] + ","
                 data += result['encryption'] + ","
-                data += str(result['channel'])
+                data += str(result['channel']) + ","
+                data += result['lastupdt']
+                print("FOUND: " + data)
                 gmap.marker(lat, lon, color=color, title=data)
             pageCount += 100
         print("%d results plotted on map!" % totalCount)
@@ -154,7 +175,9 @@ def markers(essid, totalResults, color):
                 data += result['ssid'] + ","
                 data += result['netid'] + ","
                 data += result['encryption'] + ","
-                data += str(result['channel'])
+                data += str(result['channel']) + ","
+                data += result['lastupdt']
+                print("FOUND: " + data)
                 gmap.marker(lat, lon, color=color, title=data)
             pageCount += 100
         payload = {'ssid': essid, 'api_key': urlsafe_b64encode(creds_bytes), 'first': finalPageFirstNum}
@@ -169,7 +192,9 @@ def markers(essid, totalResults, color):
             data += result['ssid'] + ","
             data += result['netid'] + ","
             data += result['encryption'] + ","
-            data += str(result['channel'])
+            data += str(result['channel']) + ","
+            data += result['lastupdt']
+            print("FOUND: " + data)
             gmap.marker(lat, lon, color=color, title=data)
         print("%d results plotted on map!" % totalCount)
         return
@@ -185,8 +210,9 @@ def markers(essid, totalResults, color):
             data += result['ssid'] + ","
             data += result['netid'] + ","
             data += result['encryption'] + ","
-            data += str(result['channel'])
-            #print(data)
+            data += str(result['channel']) + ","
+            data += result['lastupdt']
+            print("FOUND: " + data)
             gmap.marker(lat, lon, color=color, title=data)
         print("%d results plotted on map!" % totalCount)
         return
@@ -226,15 +252,97 @@ def searchESSIDs(file):
     f.close()
     return
 
+def latlong(lat, long, distance, ssid):
+    global count
+    if len(ssid) > 0:
+        payload = {'latrange1': lati, 'latrange2': lati, 'longrange1': long, 'longrange2': long, 'variance': distance, 'api_key': urlsafe_b64encode(creds_bytes), 'ssid': ssid}
+    else:
+        payload = {'latrange1': lati, 'latrange2': lati, 'longrange1': long, 'longrange2': long, 'variance': distance, 'api_key': urlsafe_b64encode(creds_bytes)}
+
+    results = requests.get(url='https://api.wigle.net/api/v2/network/search', params=payload, auth=HTTPBasicAuth(wigle_username, wigle_password)).json()
+    print("Query Success: %s \n" % results['success'])
+
+    if results['totalResults'] == 0:
+        print("NO RESULTS FOUND FOR: " + ssid)
+    else:
+        print("Total Results: %s" % results['totalResults'])
+    
+    if len(ssid) == 0:
+        for result in results['results']:
+            colour = clrs[count]
+            
+            lat = float(result['trilat'])
+            lon = float(result['trilong'])
+
+            data = ""
+            if result['ssid'] == None:
+                data += "---HIDDEN---,"
+            else:
+                data += result['ssid'] + ","
+            data += result['netid'] + ","
+            data += result['encryption'] + ","
+            data += str(result['channel']) + ","
+            data += result['lastupdt']
+            print("FOUND: " + data)
+            gmap.marker(lat, lon, color=colour, title=data)
+            if count == 11:
+                count = 0
+            else:
+                count += 1
+    else:
+        for result in results['results']:
+            colour = clrs[count]
+            
+            lat = float(result['trilat'])
+            lon = float(result['trilong'])
+
+            data = ""
+            if result['ssid'] == None:
+                data += "---HIDDEN---,"
+            else:
+                data += result['ssid'] + ","
+            data += result['netid'] + ","
+            data += result['encryption'] + ","
+            data += str(result['channel']) + ","
+            data += result['lastupdt']
+            print("FOUND: " + data)
+            gmap.marker(lat, lon, color=colour, title=data)
+            if ESSID:
+                if count == 11:
+                    count = 0
+                else:
+                    count += 1
+        
+    print("Populating wiglemap.html...\n")
+    gmap.draw("wiglemap.html")
+        
+
 if __name__ == "__main__":
     userStats()
-    if args.BSSID:
+    if args.BSSID and not args.lat:
         searchBSSID(BSSID, clrs[0])
-    elif args.ESSID:
+    elif args.ESSID and not args.lat:
         searchESSID(ESSID, clrs[0])
-    elif args.ESSIDs:
+    elif args.ESSIDs and not args.lat:
         searchESSIDs(ESSIDs)
-    elif args.BSSIDs:
+    elif args.BSSIDs and not args.lat:
         searchBSSIDs(BSSIDs)
+    elif args.lat:
+        if range:
+            radius = (distance * 150000)
+            gmap.circle(lati, long, radius, color="cyan", alpha=0.15)
+        if args.ESSID:
+            latlong(lati, long, distance, ESSID)
+        elif args.ESSIDs:
+            f = open(ESSIDs, "r")
+            lines = f.readlines()
+            for x in lines:
+                latlong(lati, long, distance, x.strip())
+                count += 1
+        else:
+            ESSID = ""
+            latlong(lati, long, distance, ESSID)
+
+
     else:
         print(parser.print_help())
