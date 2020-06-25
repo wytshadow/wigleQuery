@@ -15,7 +15,8 @@ pip3 install -r requirements.txt
 
 ## Help
 ```
-usage: wigleQuery.py [-h] [-b AA:BB:CC:DD:EE:FF] [-B ssids.txt] [-e Home-Wifi] [-E wifiNetworks.txt] [-lat 47.25264] [-long -87.256243] [-dist 0.010] [-range y] -wA WigleAPIName -wT WigleAPIToken -g GoogleMapsAPI
+usage: wigleQuery.py [-h] [-b AA:BB:CC:DD:EE:FF] [-B ssids.txt] [-e Home-Wifi] [-E wifiNetworks.txt]
+[-lat 47.25264] [-long -87.256243] [-dist 0.010] [-range y] -wA WigleAPIName -wT WigleAPIToken -g GoogleMapsAPI
 
 A command line tool for querying wigle.net and displaying results on Google Maps.
 
