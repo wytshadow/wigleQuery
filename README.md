@@ -15,12 +15,9 @@ pip3 install -r requirements.txt
 
 ## Help
 ```
-usage: wigleQuery.py [-h] [-b AA:BB:CC:DD:EE:FF] [-B ssids.txt] [-e Home-Wifi]
-                     [-E wifiNetworks.txt] -wA WigleAPIName -wT WigleAPIToken
-                     -g GoogleMapsAPI
+usage: wigleQuery.py [-h] [-b AA:BB:CC:DD:EE:FF] [-B ssids.txt] [-e Home-Wifi] [-E wifiNetworks.txt] [-lat 47.25264] [-long -87.256243] [-dist 0.010] [-range y] -wA WigleAPIName -wT WigleAPIToken -g GoogleMapsAPI
 
-A command line tool for querying wigle.net and displaying results on Google
-Maps.
+A command line tool for querying wigle.net and displaying results on Google Maps.
 
 optional arguments:
   -h, --help            show this help message and exit
@@ -28,6 +25,10 @@ optional arguments:
   -B ssids.txt          Search for list of BSSIDs
   -e Home-Wifi          Search for single ESSID
   -E wifiNetworks.txt   Search for list of ESSIDs
+  -lat 47.25264         Latitude
+  -long -87.256243      Longitude
+  -dist 0.010           Value must be between 0.001 and 0.2.
+  -range y              Show circle on map for Lat/Long query
   -wA WigleAPIName      Wigle API Name from wigle.net
   -wT WigleAPIToken     Wigle API Token from wigle.net
   -g GoogleMapsAPI      Google Maps API key
