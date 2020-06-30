@@ -72,3 +72,51 @@ Open wiglemap.html in a web browser.
 Hover over a marker on the map to see information about a wireless access point.
 
 ![](https://github.com/wytshadow/wigleQuery/blob/master/data.png)
+
+Plot multiple ESSIDs or BSSIDs
+
+```
+python3 wigleQuery.py -wA AI**********************18 -wT e6********************b8 -g AI***************************I -E testESSIDs.txt
+
+User: wytshadow
+Rank: 1660
+Discovered Wifi+GPS: 60380
+Last Upload: 20200425-01714
+
+List of 2 ESSIDs
+
+Querying for xfinitywifi
+
+Query Success: True
+
+Total Results: 14623298
+Creating markers...
+Only plotting top 10,000 results
+Plotting results 0 - 100...
+...
+...
+...
+10000 results plotted on map!
+14623298 total results discovered!
+
+Populating wiglemap.html...
+
+
+Querying for attwifi
+
+Query Success: True
+
+Total Results: 332249
+Creating markers...
+Only plotting top 10,000 results
+Plotting results 0 - 100...
+...
+...
+...
+10000 results plotted on map!
+332249 total results discovered!
+
+Populating wiglemap.html...
+```
+
+![](https://github.com/wytshadow/wigleQuery/blob/master/colors.png)
