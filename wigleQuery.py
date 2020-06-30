@@ -27,9 +27,10 @@ BSSID = args.BSSID
 ESSID = args.ESSID
 ESSIDs = args.ESSIDs
 BSSIDs = args.BSSIDs
-lati = float(args.lat)
-long = float(args.long)
-distance = float(args.distance)
+if args.lat:
+    lati = float(args.lat)
+    long = float(args.long)
+    distance = float(args.distance)
 range = args.range
 googleMapAPI = args.googleAPI
 
@@ -254,10 +255,12 @@ def searchESSIDs(file):
 
 def latlong(lat, long, distance, ssid):
     global count
-    if len(ssid) > 0:
-        payload = {'latrange1': lati, 'latrange2': lati, 'longrange1': long, 'longrange2': long, 'variance': distance, 'api_key': urlsafe_b64encode(creds_bytes), 'ssid': ssid}
-    else:
+    if len(ssid) < 1:
         payload = {'latrange1': lati, 'latrange2': lati, 'longrange1': long, 'longrange2': long, 'variance': distance, 'api_key': urlsafe_b64encode(creds_bytes)}
+    elif args.ESSID or args.ESSIDs:
+        payload = {'latrange1': lati, 'latrange2': lati, 'longrange1': long, 'longrange2': long, 'variance': distance, 'api_key': urlsafe_b64encode(creds_bytes), 'ssid': ssid}
+    elif args.BSSID or args.BSSIDs:
+        payload = {'latrange1': lati, 'latrange2': lati, 'longrange1': long, 'longrange2': long, 'variance': distance, 'api_key': urlsafe_b64encode(creds_bytes), 'netid': ssid}
 
     results = requests.get(url='https://api.wigle.net/api/v2/network/search', params=payload, auth=HTTPBasicAuth(wigle_username, wigle_password)).json()
     print("Query Success: %s \n" % results['success'])
@@ -339,9 +342,18 @@ if __name__ == "__main__":
             for x in lines:
                 latlong(lati, long, distance, x.strip())
                 count += 1
+        elif not args.ESSID and not args.ESSIDs and not args.BSSID and not args.BSSIDs:
+                ESSID = ""
+                latlong(lati, long, distance, ESSID)
         else:
-            ESSID = ""
-            latlong(lati, long, distance, ESSID)
+            if args.BSSID:
+                latlong(lati, long, distance, BSSID)
+            elif args.BSSIDs:
+                f = open(BSSIDs, "r")
+                lines = f.readlines()
+                for x in lines:
+                    latlong(lati, long, distance, x.strip())
+                    count += 1
 
 
     else:
