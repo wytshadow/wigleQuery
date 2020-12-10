@@ -42,7 +42,7 @@ clrs = ["red", "yellow", "blue", "orange", "purple", "green", "black", "white", 
 #setup map in AoI
 lat = 39.7392
 lon = -104.9903
-gmap = gmplot.GoogleMapPlotter(lat, lon, 5)
+gmap = gmplot.GoogleMapPlotter(lati, long, 14)
 gmap.apikey = googleMapAPI
 
 lat_list = [] 
