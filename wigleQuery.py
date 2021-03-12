@@ -28,9 +28,12 @@ ESSID = args.ESSID
 ESSIDs = args.ESSIDs
 BSSIDs = args.BSSIDs
 if args.lat:
-    lati = float(args.lat)
-    long = float(args.long)
+    lat = float(args.lat)
+    lon = float(args.long)
     distance = float(args.distance)
+elif args.lat == None:
+    lat = 39.7392
+    lon = -104.9903
 range = args.range
 googleMapAPI = args.googleAPI
 
@@ -40,9 +43,7 @@ creds_bytes = creds.encode('ascii')
 clrs = ["red", "yellow", "blue", "orange", "purple", "green", "black", "white", "pink", "brown", "lightgreen", "lightblue"]
 
 #setup map in AoI
-lat = 39.7392
-lon = -104.9903
-gmap = gmplot.GoogleMapPlotter(lati, long, 14)
+gmap = gmplot.GoogleMapPlotter(lat, lon, 14)
 gmap.apikey = googleMapAPI
 
 lat_list = [] 
