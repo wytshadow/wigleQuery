@@ -292,6 +292,7 @@ def searchESSIDs(file):
     f.close()
     return
 
+#rewrite this to get more than top 100 results
 def latlong(lat, long, distance, ssid):
     global count
     if len(ssid) < 1:
@@ -373,6 +374,7 @@ if __name__ == "__main__":
         searchESSIDs(ESSIDs)
     elif args.BSSIDs and not args.lat:
         searchBSSIDs(BSSIDs)
+    #do this better
     elif args.lat:
         if range:
             radius = (distance * 150000)
