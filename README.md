@@ -10,7 +10,7 @@ A command line tool for querying wigle.net and displaying results on Google Maps
 
 ## Installation
 ```
-pip3 install -r requirements.txt
+python3 -m pip install -r requirements.txt
 ```
 
 ## Help
