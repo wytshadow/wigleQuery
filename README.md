@@ -33,6 +33,8 @@ optional arguments:
   -wA WigleAPIName      Wigle API Name from wigle.net
   -wT WigleAPIToken     Wigle API Token from wigle.net
   -g GoogleMapsAPI      Google Maps API key
+  -o output.html, --output output.html
+                        Output filename for the map
 ```
 ### WiGLE API
 WiGLE API Name and Token are not your username and password. After creating an account on wigle.net, visit https://wigle.net/account to see your API Name and API Token.
@@ -45,7 +47,7 @@ Follow the instructions at https://developers.google.com/maps/documentation/java
 
 ## Usage
 ```
-python3 wigleQuery.py -wA AI***************18 -wT e6****************b8 -e "BobsWiFi" -g AI********************VKI    
+python3 wigleQuery.py -wA AI***************18 -wT e6****************b8 -e "BobsWiFi" -g AI********************VKI -o wiglemap.html   
 
 User: wytshadow 
 Rank: 1629 
@@ -76,7 +78,7 @@ Hover over a marker on the map to see information about a wireless access point.
 Plot multiple ESSIDs or BSSIDs
 
 ```
-python3 wigleQuery.py -wA AI**********************18 -wT e6********************b8 -g AI***************************I -E testESSIDs.txt
+python3 wigleQuery.py -wA AI**********************18 -wT e6********************b8 -g AI***************************I -E testESSIDs.txt -o wiglemap.html
 
 User: wytshadow
 Rank: 1660
@@ -124,7 +126,7 @@ Populating wiglemap.html...
 Specify Latitude/Longitude and Distance away from Lat/Long point. Value must be between 0.001 and 0.2.
 
 ```
-python3 wigleQuery.py -lat 38.8895 -long "-77.0353" -dist 0.010 -wA AI**********************8 -wT e6*******************b8 -g A*********************I
+python3 wigleQuery.py -lat 38.8895 -long "-77.0353" -dist 0.010 -wA AI**********************8 -wT e6*******************b8 -g A*********************I -o wiglemap.html
 
 User: wytshadow
 Rank: 1660
@@ -149,7 +151,7 @@ FOUND: <no ssid>,00:01:E6:93:49:FE,unknown,0,2006-05-19T19:00:00.000Z
 Add circle on map with range option to display search area.
 
 ```
-python3 wigleQuery.py -lat 38.8895 -long "-77.0353" -dist 0.010 -range y -wA AI**********************18 -wT e6*******************b8 -g AI**************I
+python3 wigleQuery.py -lat 38.8895 -long "-77.0353" -dist 0.010 -range y -wA AI**********************18 -wT e6*******************b8 -g AI**************I -o wiglemap.html
 
 User: wytshadow
 Rank: 1660
@@ -172,7 +174,7 @@ FOUND: ---HIDDEN---,00:01:36:61:7E:CE,unknown,0,2010-08-20T19:00:00.000Z
 Seach for single BSSID/ESSID or list of BSSIDs/ESSIDs while specifying Lat/Long.
 
 ```
-python3 wigleQuery.py -lat 38.8895 -long "-77.0353" -dist 0.010 -range y -wA AI**********************18 -wT e6*******************b8 -g AI**************I -e "GlobalSuiteWireless"
+python3 wigleQuery.py -lat 38.8895 -long "-77.0353" -dist 0.010 -range y -wA AI**********************18 -wT e6*******************b8 -g AI**************I -e "GlobalSuiteWireless" -o wiglemap.html
 
 User: wytshadow
 Rank: 1660
