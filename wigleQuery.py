@@ -38,9 +38,6 @@ elif args.lat == None:
 range = args.range
 googleMapAPI = args.googleAPI
 
-creds = wigle_username + wigle_password
-creds_bytes = creds.encode('ascii')
-
 clrs = ["red", "yellow", "blue", "orange", "purple", "green", "black", "white", "pink", "brown", "lightgreen", "lightblue"]
 
 #setup map in AoI
@@ -52,7 +49,7 @@ lon_list = []
 
 count = 0
 
-def userStats(api_key, username, password):
+def userStats(username, password):
     try:
         response = requests.get(url='https://api.wigle.net/api/v2/stats/user',  
                                 auth=HTTPBasicAuth(username, password))
@@ -358,7 +355,7 @@ def handle_lat_conditions():
 
 
 if __name__ == "__main__":
-    userStats(creds, wigle_username, wigle_password)
+    userStats(wigle_username, wigle_password)
 
     if args.BSSID and not args.lat:
         searchBSSID(BSSID, clrs[0], args.output_file)

@@ -1,0 +1,2 @@
+wpa2
+guest
