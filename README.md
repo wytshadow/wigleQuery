@@ -15,17 +15,22 @@ python3 -m pip install -r requirements.txt
 
 ## Help
 ```
-usage: wigleQuery.py [-h] [-b AA:BB:CC:DD:EE:FF] [-B ssids.txt] [-e Home-Wifi] [-E wifiNetworks.txt]
-[-lat 47.25264] [-long -87.256243] [-dist 0.010] [-range y] -wA WigleAPIName -wT WigleAPIToken -g GoogleMapsAPI
+usage: wigleQuery.py [-h] [-b AA:BB:CC:DD:EE:FF] [-B ssids.txt] [-e Home-Wifi] [-E wifiNetworks.txt] [-btb AA:BB:CC:DD:EE:FF] [-btB btBSSIDs.txt] [-bte BT-Device] [-btE btDevices.txt] [-lat 47.25264] [-long -87.256243] [-dist 0.010] [-range y] -wA
+                     WigleAPIName -wT WigleAPIToken -g GoogleMapsAPI [-o output.html]
 
 A command line tool for querying wigle.net and displaying results on Google Maps.
 
-optional arguments:
+options:
   -h, --help            show this help message and exit
   -b AA:BB:CC:DD:EE:FF  Search for single BSSID
   -B ssids.txt          Search for list of BSSIDs
   -e Home-Wifi          Search for single ESSID
   -E wifiNetworks.txt   Search for list of ESSIDs
+  -btb AA:BB:CC:DD:EE:FF
+                        Search for single BT MAC Address
+  -btB btBSSIDs.txt     Search for list of BT MAC Addresses
+  -bte BT-Device        Search for single BT Device names
+  -btE btDevices.txt    Search for list of BT Device names
   -lat 47.25264         Latitude
   -long -87.256243      Longitude
   -dist 0.010           Value must be between 0.001 and 0.2.
