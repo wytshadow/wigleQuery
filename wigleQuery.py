@@ -12,7 +12,6 @@ import time
 import os
 from datetime import datetime
 
-
 parser = argparse.ArgumentParser(description='A command line tool for querying wigle.net and displaying results on Google Maps and outputting to a CSV file.')
 parser.add_argument('-b', metavar='AA:BB:CC:DD:EE:FF', dest='BSSID', action='store', help='Search for single BSSID\n', required=False)
 parser.add_argument('-B', metavar='ssids.txt', dest='BSSIDs', action='store', help='Search for list of BSSIDs\n', required=False)
@@ -54,7 +53,6 @@ elif args.lat == None:
 range = args.range
 googleMapAPI = args.googleAPI
 
-# setup map in AoI
 gmap = gmplot.GoogleMapPlotter(lati, long, 14, apikey=googleMapAPI)
 
 lat_list = [] 
@@ -62,7 +60,6 @@ lon_list = []
 
 count = 0
 
-# Hardcoded list of colors
 COLORS = [
     "#000000", "#000080", "#00008B", "#0000CD", "#0000FF", "#006400", "#008000", "#008080", "#008B8B", "#00BFFF", 
     "#00CED1", "#00FA9A", "#00FF00", "#00FF7F", "#00FFFF", "#191970", "#1E90FF", "#20B2AA", "#228B22", "#2E8B57", 
@@ -87,7 +84,6 @@ def generate_color_for_id(id, id_color_map):
         id_color_map[id] = random.choice(COLORS)
     return id_color_map[id]
 
-# Function to retrieve user statistics
 def userStats(username, password):
     try:
         response = requests.get(url='https://api.wigle.net/api/v2/stats/user', auth=HTTPBasicAuth(username, password))
@@ -102,7 +98,6 @@ def userStats(username, password):
     except Exception as err:
         print(f'Other error occurred: {err}')
 
-# Function to format data for printing
 def format_data(result):
     ssid = result.get('ssid', '---')
     netid = result.get('netid', '')
@@ -113,16 +108,14 @@ def format_data(result):
     lon = float(result.get('trilong', 0))
     return f"{ssid},{netid},{encryption},{channel},{lastupdt},{lat},{lon}"
 
-# Function to search network and plot on the map
 def search_network(endpoint, payload, gmap, output_csv, output_html, is_bssid=False, case_sensitive=False, verbose=False):
     total_plotted = 0
     search_after = None
     id_color_map = {}  # Dictionary to store color for each unique ID (BSSID/ESSID)
-    ssid_counts = {}  # Dictionary to count SSIDs
+    ssid_counts = {}
     results_found = False
     page_count = 0 
 
-    # Update payload with latitude, longitude, and variance if provided
     if args.lat and args.long and args.distance:
         payload.update({
             'latrange1': args.lat,
@@ -132,13 +125,11 @@ def search_network(endpoint, payload, gmap, output_csv, output_html, is_bssid=Fa
             'variance': args.distance
         })
 
-    # Check if the file exists and open in append mode if it does
     file_exists = os.path.isfile(output_csv)
     with open(output_csv, 'a' if file_exists else 'w', newline='', encoding='utf-8') as csvfile:
         fieldnames = ['SSID', 'NetID', 'Encryption', 'Channel', 'Last Update', 'Latitude', 'Longitude']
         writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
 
-        # Write the header only if the file did not exist
         if not file_exists:
             writer.writeheader()
 
@@ -221,9 +212,6 @@ def search_network(endpoint, payload, gmap, output_csv, output_html, is_bssid=Fa
     # Plotting on the HTML file
     gmap.draw(output_html)
 
-
-
-# Functions for different search types
 def searchBSSID(BSSID, gmap, output_html, output_csv, verbose=False):
     payload = {'netid': BSSID}
     if args.lat and args.long and args.distance:
@@ -279,19 +267,11 @@ def searchArea(lat, long, distance, gmap, output_html, output_csv, verbose=False
     endpoint = 'https://api.wigle.net/api/v2/network/search'
     search_network(endpoint, payload, gmap, output_csv, output_html, is_bssid=False, case_sensitive=False, verbose=verbose)
 
-
-
 if __name__ == "__main__":
     userStats(wigle_username, wigle_password)
     verbose_mode = args.verbose
-
-    # Generate a timestamp
     current_time = datetime.now().strftime("%Y%m%d-%H%M%S")
-
-    # Extract the base filename without the extension
     base_output_file = os.path.splitext(args.output_file)[0]
-
-    # Append the timestamp to the filenames
     output_html = f"{base_output_file}-{current_time}.html"
     output_csv = f"{base_output_file}-{current_time}.csv"
 
@@ -316,7 +296,6 @@ if __name__ == "__main__":
     elif args.BSSIDs and not args.lat:
         searchBSSIDs(BSSIDs, gmap, output_html, output_csv, verbose=verbose_mode)
     elif args.lat and not (args.ESSID or args.BSSID or args.ESSIDs or args.BSSIDs):
-        # Latitude and Longitude are provided but no specific SSID/BSSID
         searchArea(lati, long, distance, gmap, output_html, output_csv, verbose=verbose_mode)
     else:
         print(parser.print_help())
