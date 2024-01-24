@@ -1,0 +1,14 @@
+# Ignore macOS system files
+.DS_Store
+
+# Ignore all HTML files
+*.html
+
+# Ignore all CSV files
+*.csv
+
+# Ignore all TXT files
+*.txt
+
+# Except for requirements.txt
+!requirements.txt
